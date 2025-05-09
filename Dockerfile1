@@ -1,0 +1,5 @@
+FROM devilbox/php-fpm:7.4-prod
+
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+
+RUN apt-get install -y ffmpeg
