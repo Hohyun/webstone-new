@@ -1,19 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    io.kompose.service: php-74
   name: php-74
   namespace: webstone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: php-74
+      app: php-74
   template:
     metadata:
       labels:
-        io.kompose.service: php-74
+        app: php-74
     spec:
       containers:
         - env:
@@ -28,10 +26,10 @@ spec:
             - containerPort: 9000
           volumeMounts:
             - mountPath: /var/www/default/htdocs
-              name: webstoneeng-volume
+              name: webstone-volume
       restartPolicy: Always
       volumes:
-        - name: webstoneeng-volume
+        - name: webstone-volume
           hostPath:
             path: /home/hohyun/Projects/webstone/htdocs
             type: Directory
@@ -39,9 +37,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    io.kompose.service: php-74
-  name: php-74
+  name: php-74-svc
   namespace: webstone
 spec:
   ports:
@@ -49,26 +45,24 @@ spec:
       port: 9000
       targetPort: 9000
   selector:
-    io.kompose.service: php-74
+    app: php-74
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    io.kompose.service: apache-php74
-  name: apache-php74
+  name: apache2
   namespace: webstone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: apache-php74
+      app: apache2
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        io.kompose.service: apache-php74
+        app: apache2
     spec:
       containers:
         - env:
@@ -82,7 +76,7 @@ spec:
               value: Asia/Seoul
           image: devilbox/apache-2.2
           imagePullPolicy: ""
-          name: apache-php74
+          name: apache2
           ports:
             - containerPort: 80
           volumeMounts:
@@ -98,37 +92,37 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    io.kompose.service: apache-php74
-  name: apache-php74
+  name: apache2-svc
   namespace: webstone
 spec:
   ports:
     - protocol: TCP
-      port: 8081
+      port: 80
       targetPort: 80
   selector:
-    io.kompose.service: apache-php74
+    app: apache2
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: webstone-ingress
+  annotations:
+    cert-manager.io/issuer: letsencrypt-nginx
   namespace: webstone
 spec:
-  ingressClassName: traefik
-  tls:
-    - hosts:
-        - www.webstonetest.com
-      secretName: my-selfsigned-ca
+  ingressClassName: nginx
   rules:
-    - host: www.webstonetest.com
+    - host: webstone.newchunk.kr
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: apache-php74
-                port:
-                  number: 8081
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: apache2-svc
+              port:
+                number: 80
+  tls:
+    - hosts:
+      - webstone.newchunk.kr
+      secretName: letsencrypt-webstone-app
