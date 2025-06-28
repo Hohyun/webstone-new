@@ -12,6 +12,6 @@ namespace for secret should match with the namespace of pod
 
 > kubectl -n chunkeng|webstone create secret docker-registry ghcr-io-registry
 >   --docker-server=ghcr.io
->   --docker-username=Hohyun
->   --docker-password=<github ghcr.io password>
->   --docker-email=skykim63@gmail.com
+>   --docker-username=<username>
+>   --docker-password=<password>
+>   --docker-email=<email>
