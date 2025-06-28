@@ -27,11 +27,13 @@ spec:
           volumeMounts:
             - mountPath: /var/www/default/htdocs
               name: webstone-volume
+      imagePullSecrets:
+        - name: ghcr-io-registry
       restartPolicy: Always
       volumes:
         - name: webstone-volume
           hostPath:
-            path: /home/hohyun/Projects/webstone/htdocs
+            path: /home/hohyun/projects/webstone/htdocs
             type: Directory
 ---
 apiVersion: v1
@@ -67,7 +69,7 @@ spec:
       containers:
         - env:
             - name: MAIN_VHOST_BACKEND
-              value: conf:phpfpm:tcp:php-74:9000
+              value: conf:phpfpm:tcp:php-74-svc:9000
             - name: NEW_GID
               value: "1000"
             - name: NEW_UID
@@ -86,7 +88,7 @@ spec:
       volumes:
         - name: webstone-volume
           hostPath:
-            path: /home/hohyun/Projects/webstone/htdocs
+            path: /home/hohyun/projects/webstone/htdocs
             type: Directory
 ---
 apiVersion: v1
@@ -115,14 +117,14 @@ spec:
     - host: webstone.newchunk.kr
       http:
         paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: apache2-svc
-              port:
-                number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apache2-svc
+                port:
+                  number: 80
   tls:
     - hosts:
-      - webstone.newchunk.kr
+        - webstone.newchunk.kr
       secretName: letsencrypt-webstone-app

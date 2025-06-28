@@ -1,7 +1,7 @@
 <?php
 
-$host="mysql.webstone.svc.cluster.local";
-// $host="chunkeng.kr";
+// $host="mysql.webstone.svc.cluster.local";
+$host="chunkeng.kr";
 $user="root";
 $pswd="hohyun0501";
 $dbname="webstone";
